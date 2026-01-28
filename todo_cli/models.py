@@ -30,9 +30,9 @@ def titles(items: list[TodoItem]) -> list[str]:
     return [item.title for item in items]
 
 
-def done_items(items: list[TodoItem]) -> list[str]:
+def done_items(items: list[TodoItem]) -> list[TodoItem]:
     return [item for item in items if item.done]
 
 
-def pending_items(items: list[TodoItem]) -> list[str]:
+def pending_items(items: list[TodoItem]) -> list[TodoItem]:
     return [item for item in items if not item.done]
