@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from todo_cli.models import *
 from todo_cli.storage import *
+from todo_cli.services import NotFoundError, TodoService
 
 
 def main() -> None:
@@ -13,25 +13,24 @@ def main() -> None:
         print("Ошибка загрузки:", e)
         items = []
 
-    if not items:
-        items = [
-            TodoItem(
-                id=1,
-                title="купить молоко",
-                created_at=datetime.now().isoformat(),
-                done=True,
-            ),
-            TodoItem(
-                id=2,
-                title="погладить кота",
-                created_at=datetime.now().isoformat(),
-                done=True,
-            ),
-        ]
+    service = TodoService(items)
+
+    print(
+        f"Всего: {service.count_total}, выполнено: {service.count_done}, осталось: {service.count_pending}"
+    )
+
+    if service.count_total == 0:
+        service.add("Сделать дз")
+        service.add("Сходить в магазин")
 
     try:
-        save_item(path, items)
-        print(f"Сохранено задач: {len(items)} -> {path}")
+        service.mark_done(1, True)
+    except NotFoundError as e:
+        print("Ошибка:", e)
+
+    try:
+        save_items(path, service.items)
+        print(f"Сохранено задач: {len(service.items)} -> {path}")
     except StorageError as e:
         print("Ошибка сохранения:", e)
 

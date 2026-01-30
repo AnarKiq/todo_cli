@@ -38,7 +38,7 @@ def load_items(path: str) -> list[TodoItem]:
     return items
 
 
-def save_item(path: str, items: list[TodoItem]) -> None:
+def save_items(path: str, items: list[TodoItem]) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
 
