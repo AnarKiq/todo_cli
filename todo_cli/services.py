@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import replace
 from datetime import datetime
+from pydantic import ValidationError
 
 from todo_cli.models import TodoItem
 
@@ -34,12 +34,22 @@ class TodoService:
     def count_pending(self) -> int:
         return self.count_total - self.count_done
 
+    def titles(self, items: list[TodoItem]) -> list[str]:
+        return [item.title for item in self._items]
+
+    def done_items(self, items: list[TodoItem]) -> list[TodoItem]:
+        return [item for item in self._items if item.done]
+
+    def pending_items(self, items: list[TodoItem]) -> list[TodoItem]:
+        return [item for item in self._items if not item.done]
+
     def _next_id(self) -> int:
         if not self._items:
             return 1
         return max(item.id for item in self._items) + 1
 
     def add(self, title: str) -> TodoItem:
+
         item = TodoItem(
             id=self._next_id(),
             title=title,
@@ -48,6 +58,7 @@ class TodoService:
         )
         self._items.append(item)
         return item
+
 
     def get(self, item_id: int) -> TodoItem:
         for item in self._items:
@@ -59,7 +70,12 @@ class TodoService:
 
         for idx, item in enumerate(self._items):
             if item.id == item_id:
-                updated = replace(item, done=done)
+                updated = TodoItem(
+                    id = item.id,
+                    created_at = item.created_at,
+                    title = item.title,
+                    done = done
+                )
                 self._items[idx] = updated
                 return updated
         raise NotFoundError(f"Задача с id={item_id} не найдена")

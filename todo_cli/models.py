@@ -1,38 +1,29 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from pydantic import BaseModel, Field
 from typing import Any
 
 
-@dataclass
-class TodoItem:
+class TodoItem(BaseModel):
     id: int
-    title: str
     created_at: str  # ISO строка, например "2026-01-26T12:34:56"
+    title: str = Field("...", min_length=3, max_length=100)
     done: bool = False
 
 
 def to_dict(item: TodoItem) -> dict[str, Any]:
-    return asdict(item)
+    return {"id" : item.id,
+            "created_at": item.created_at,
+            "title" : item.title,
+            "done" : item.done
+            }
 
 
 def from_dict(data: dict[str, Any]) -> TodoItem:
     # Базовая валидация + применение типов, чтобы JSON не ломал программу
     return TodoItem(
-        id=int(data["id"]),
-        title=str(data["title"]),
-        created_at=str(data["created_at"]),
-        done=bool(data.get("done", False)),
+        id = data["id"],
+        created_at = data["created_at"],
+        title = data["title"],
+        done = data.get("done", False),
     )
-
-
-def titles(items: list[TodoItem]) -> list[str]:
-    return [item.title for item in items]
-
-
-def done_items(items: list[TodoItem]) -> list[TodoItem]:
-    return [item for item in items if item.done]
-
-
-def pending_items(items: list[TodoItem]) -> list[TodoItem]:
-    return [item for item in items if not item.done]

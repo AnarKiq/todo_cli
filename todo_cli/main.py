@@ -8,12 +8,10 @@ def main() -> None:
     path = "data/todos.json"
 
     try:
-        items = load_items(path)
+        service = TodoService(load_items(path))
     except StorageError as e:
         print("Ошибка загрузки:", e)
-        items = []
-
-    service = TodoService(items)
+        service = TodoService([])
 
     print(
         f"Всего: {service.count_total}, выполнено: {service.count_done}, осталось: {service.count_pending}"
@@ -22,6 +20,7 @@ def main() -> None:
     if service.count_total == 0:
         service.add("Сделать дз")
         service.add("Сходить в магазин")
+        service.add("Покормить кота")
 
     try:
         service.mark_done(1, True)
